@@ -1,0 +1,28 @@
+# Composer dependencies
+/vendor/
+
+/composer.lock
+
+# Node modules
+/node_modules/
+
+# Environment variables
+.env
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Cache
+/cache/
+*.cache
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
