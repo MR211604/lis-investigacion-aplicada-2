@@ -14,10 +14,10 @@
       try {
         const response = await fetch('http://127.0.0.1:8080/products');
         const data = await response.json();
-              
+
         const tbody = document.querySelector('tbody');
         tbody.innerHTML = '';
-        
+
         // Recorrer los productos y agregar filas a la tabla
         data.forEach(producto => {
           const fila = crearFilaProducto(producto);
@@ -27,9 +27,9 @@
         console.error('Error al cargar los productos:', error);
       }
     }
-    
+
     function crearFilaProducto(producto) {
-      
+
       const tr = document.createElement('tr');
       tr.className = 'odd:bg-white even:bg-gray-50 border-b border-gray-200';
 
@@ -44,21 +44,42 @@
           ${producto.stock || 'N/A'}
         </td>
         <td class="space-x-2 py-4">
-          <a href="#" class="font-medium text-blue-600 hover:underline" 
+          <a href="editProduct/${producto.id}" class="font-medium text-blue-600 hover:underline" 
              data-id="${producto.id || ''}">Editar</a>
-          <a href="#" class="font-medium text-red-600 hover:underline" 
+          <a href="javascript:void(0)" onclick="eliminarProducto(${producto.id || ''})" class="font-medium text-red-600 hover:underline" 
              data-id="${producto.id || ''}">Eliminar</a>
         </td>
       `;
-      
+
       return tr;
     }
-    
+
+    async function eliminarProducto(id) {
+      if (confirm('¿Está seguro que desea eliminar este producto?')) {
+        try {
+          const response = await fetch(`http://127.0.0.1:8080/products/delete/${id}`, {
+            method: 'DELETE',
+          });
+          
+          if (response.ok) {
+            alert('Producto eliminado correctamente');
+            cargarProductos(); // Recargar la lista después de eliminar
+          } else {
+            alert('Error al eliminar el producto');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error al eliminar el producto');
+        }
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', cargarProductos);
 
   </script>
 
-  <div class="flex justify-center items-center">
+  <div class="flex flex-col justify-center items-center">
+    <h2 class="flex items-center justify-center mt-4 text-zinc-800 font-bold text-3xl">Lista de productos</h2>
     <div class="mt-6 overflow-x-auto shadow-md sm:rounded-lg min-w-[75%]">
       <table class="w-full text-sm text-left text-gray-500">
         <thead class="text-xs text-gray-700 uppercase bg-gray-200">
@@ -81,7 +102,13 @@
           <!-- Aquí se cargarán los datos dinámicamente -->
         </tbody>
       </table>
+
     </div>
+    <button type="button" onclick="window.location.href='addProduct';"
+      class="text-white mt-3 bg-cyan-700 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-cyan-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Agregar
+      producto</button>
   </div>
+
 </body>
+
 </html>

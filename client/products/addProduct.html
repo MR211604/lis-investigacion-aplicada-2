@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Agregar producto</title>
+</head>
+
+<body>
+
+  <script>
+
+    async function crearProducto() {
+
+      const productName = document.getElementById('product_name').value;
+      const price = parseFloat(document.getElementById('price').value);
+      const stock = parseInt(document.getElementById('stock').value);
+
+      const productData = {
+        name: productName,
+        price: price,
+        stock: stock
+      };
+
+      try {
+        const response = await fetch('http://127.0.0.1:8080/products/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(productData)
+        });
+        
+        const data = await response.json();
+        alert('Producto agregado exitosamente');
+        console.log(data);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Hubo un problema al agregar el producto');
+      }
+    }
+
+  </script>
+
+  <div class="flex flex-row min-h-screen justify-center items-center">
+
+    <form class="max-w-sm mx-auto">
+      <h2 class="flex items-center justify-center mb-4 text-zinc-800 font-bold">Agregar producto</h2>
+      <div class="mb-5">
+        <label for="product_name" class="block mb-2 text-sm font-medium text-gray-900 ">Nombre</label>
+        <input type="text" id="product_name"
+          class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          required />
+      </div>
+      <div class="mb-5">
+        <label for="price" class="block mb-2 text-sm font-medium text-gray-900 ">Precio</label>
+        <input type="text" id="price"
+          class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          required />
+      </div>
+      <div class="mb-5">
+        <label for="stock" class="block mb-2 text-sm font-medium text-gray-900 ">Stock</label>
+        <input type="number" id="stock" min="0" max="99"
+          class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+      </div>
+      <button type="button" onclick="crearProducto()"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Agregar
+        producto</button>
+      <button type="button" onclick="window.location.href='data';"
+        class="text-white bg-rose-700 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Volver atrás</button>
+    </form>
+  </div>
+
+
+
+</body>
+
+</html>

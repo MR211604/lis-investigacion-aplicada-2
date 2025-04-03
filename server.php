@@ -6,6 +6,7 @@ use FastRoute\RouteParser\Std;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\HttpServer;
 use React\Http\Message\Response;
+use Sikei\React\Http\Middleware\CorsMiddleware;
 
 require 'vendor/autoload.php';
 require './controllers/products.controller.php';
@@ -46,7 +47,29 @@ $r->addRoute('GET', '/data', function () {
     200,
     [
       'Content-Type' => 'text/html',
+    ],
+    $htmlContent
+  );
+});
+
+$r->addRoute('GET', '/addProduct', function () {
+  $htmlContent = file_get_contents(__DIR__ . '/client/products/addProduct.html');
+  return new Response(
+    200,
+    [
+      'Content-Type' => 'text/html',
       'Access-Control-Allow-Origin' => '*',
+    ],
+    $htmlContent
+  );
+});
+
+$r->addRoute('GET', '/editProduct/{id:\d+}', function () {
+  $htmlContent = file_get_contents(__DIR__ . '/client/products/editProduct.html');
+  return new Response(
+    200,
+    [
+      'Content-Type' => 'text/html',     
     ],
     $htmlContent
   );
@@ -120,20 +143,24 @@ $r->addRoute('GET', '/products', function () use ($productController) {
   return $productController->getProducts();
 });
 
+$r->addRoute('GET', '/products/{id:\d+}', function (ServerRequestInterface $request, $id) use ($productController) {
+  return $productController->getProductById($id);
+});
+
 $r->addRoute('POST', '/products/create', function (ServerRequestInterface $request) use ($productController) {
   return $productController->createProduct($request);
 });
 
-$r->addRoute('POST', '/products/update/{id:\d+}', function (ServerRequestInterface $request, $id) use ($productController) {
+$r->addRoute('PUT', '/products/update/{id:\d+}', function (ServerRequestInterface $request, $id) use ($productController) {
   return $productController->editProductById($request, $id);
 });
 
-$r->addRoute('POST', '/products/delete/{id:\d+}', function (ServerRequestInterface $request, $id) use ($productController) {
+$r->addRoute('DELETE', '/products/delete/{id:\d+}', function (ServerRequestInterface $request, $id) use ($productController) {
   return $productController->deleteProductById($id);
 });
 
 
-$http = new HttpServer(new Router($r));
+$http = new HttpServer(new CorsMiddleware(['allow_origin' => ['*'],]), new Router($r));
 $socket = new React\Socket\SocketServer('127.0.0.1:8080');
 $http->listen($socket);
 
