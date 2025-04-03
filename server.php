@@ -80,7 +80,7 @@ $r->addRoute('GET', '/styles.css', function (ServerRequestInterface $request) {
   parse_str($query, $queryParams);
 
   if (isset($queryParams['images']) && $queryParams['images'] === 'true') {
-    // Manejo de imágenes aleatorias
+    
     $imagesDir = __DIR__ . '/images';
 
     if (!is_dir($imagesDir)) {
