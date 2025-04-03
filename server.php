@@ -1,27 +1,23 @@
 <?php
 
 use FastRoute\DataGenerator\GroupCountBased;
-use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\HttpServer;
 use React\Http\Message\Response;
-use React\EventLoop\Loop;
-use React\MySQL\Factory;
 
 require 'vendor/autoload.php';
 require './controllers/products.controller.php';
+require './db/connection.php';
+require './router.php';
 
-$loop = Loop::get();
-$factory = new Factory($loop);
-$connection = $factory->createLazyConnection('root:root@localhost/lis_investigacion_aplicada_2');
 $browser = new React\Http\Browser();
-
 $productController = new ProductController($connection);
-
 $r = new RouteCollector(new Std(), new GroupCountBased());
 
+
+//Routes
 $r->addRoute('GET', '/', function () {
   $htmlContent = file_get_contents(__DIR__ . '/client/index.html');
   return new Response(
@@ -45,29 +41,15 @@ $r->addRoute('GET', '/contact', function () {
 });
 
 $r->addRoute('GET', '/data', function () {
-  $htmlContent = file_get_contents(__DIR__ . '/client/data.html');
+  $htmlContent = file_get_contents(__DIR__ . '/client/products/data.html');
   return new Response(
     200,
     [
-      'Content-Type' => 'text/html'
+      'Content-Type' => 'text/html',
+      'Access-Control-Allow-Origin' => '*',
     ],
     $htmlContent
   );
-});
-
-//API para controlar la informacion de /data
-$r->addRoute('POST', '/data/add', function (ServerRequestInterface $request) use ($productController) {
-  $data = $request->getParsedBody();
-  $productController->createProduct($data);   
-});
-
-$r->addRoute('POST', '/data/update/{:id\d+}', function (ServerRequestInterface $request, string $id) use ($productController) {
-  $data = $request->getParsedBody();
-  $productController->editProductById($id, $data);
-});
-
-$r->addRoute('POST', '/data/delete/{:id\d+}', function (ServerRequestInterface $request, string $id) use ($productController) {
-  $productController->deleteProductById($id);
 });
 
 $r->addRoute('GET', '/styles.css', function (ServerRequestInterface $request) {
@@ -133,10 +115,33 @@ $r->addRoute('GET', '/styles.css', function (ServerRequestInterface $request) {
   }
 });
 
+//CRUD para controlar la informacion de /data
+$r->addRoute('GET', '/products', function () use ($productController) {
+  return $productController->getProducts();
+});
+
+$r->addRoute('POST', '/products/create', function (ServerRequestInterface $request) use ($productController) {
+  return $productController->createProduct($request);
+});
+
+$r->addRoute('POST', '/products/update/{id:\d+}', function (ServerRequestInterface $request, $id) use ($productController) {
+  return $productController->editProductById($request, $id);
+});
+
+$r->addRoute('POST', '/products/delete/{id:\d+}', function (ServerRequestInterface $request, $id) use ($productController) {
+  return $productController->deleteProductById($id);
+});
+
+
 $http = new HttpServer(new Router($r));
-
 $socket = new React\Socket\SocketServer('127.0.0.1:8080');
-
 $http->listen($socket);
+
+$http->on(
+  'error',
+  function (Exception $error) {
+    echo 'Error: ' . $error->getMessage() . PHP_EOL;
+  }
+);
 
 echo "Server running at http://127.0.0.1:8080" . PHP_EOL;

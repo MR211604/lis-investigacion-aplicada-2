@@ -8,7 +8,6 @@ use React\Http\Message\Response;
 //Creando nuestro propio router con FastRoute
 final class Router
 {
-
   protected $dispatcher;
 
   public function __construct(RouteCollector $routes)
@@ -27,8 +26,7 @@ final class Router
         return new Response(405, ['Content-Type' => 'text/plain'], 'Method Not Allowed');
       case Dispatcher::FOUND:
         $params = array_values($routeInfo[2]);        
-        return $routeInfo[1]($request, ...$params);
-        
+        return $routeInfo[1]($request, ...$params);        
     }
     
     throw new LogicException('Invalid route information');
