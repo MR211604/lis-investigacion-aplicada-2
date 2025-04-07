@@ -17,9 +17,9 @@
 
         const tbody = document.querySelector('tbody');
         tbody.innerHTML = '';
-
+        
         // Recorrer los productos y agregar filas a la tabla
-        data.forEach(producto => {
+        data.products.forEach(producto => {
           const fila = crearFilaProducto(producto);
           tbody.appendChild(fila);
         });

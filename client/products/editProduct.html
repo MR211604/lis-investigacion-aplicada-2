@@ -35,7 +35,9 @@
 
       try {
         const response = await fetch(`http://127.0.0.1:8080/products/${productId}`);
-        const producto = await response.json();
+        const data = await response.json();
+
+        const { product: producto } = data
 
         // Rellenar el formulario con los datos del producto
         document.getElementById('product_name').value = producto.name;
